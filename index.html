@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>Local development environments with Drupal – Drupal Meetup Presentation</title>
+
+    <meta name="author" content="Saul Willers">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="reveal/css/reveal.css">
+    <link rel="stylesheet" href="reveal/css/theme/moon.css" id="theme">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="reveal/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+      var link = document.createElement( 'link' );
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'reveal/css/print/pdf.css' : 'reveal/css/print/paper.css';
+      document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="reveal/lib/js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+
+  <body style="background: #061745;">
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h2>Local development environments with Drupal</h2>
+          <p>Flexible and fast local dev</p>
+          <p style="margin-bottom: 1.5em;">Super easy thanks to docker-compose!</p>
+          <small>Saul Willers @ PreviousNext / PlexityNet</small>
+        </section>
+
+        <section>
+          <h2>What is Docker</h2>
+          <ul>
+            <li>Operating-system-level virtualization aka containerization</li>
+            <li>Builds on Linux kernel's cgroups (available in the kernel since Jan 2008)</li>
+            <li>Containers run on multiple platforms, Linux, OSX, Windows</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Containers built from a <code>Dockerfile</code></h2>
+          <pre><code class="hljs" data-trim contenteditable>
+FROM ubuntu
+MAINTAINER Saul Willers
+
+RUN apt-get install -y apache2
+
+EXPOSE 80
+
+ENTRYPOINT ["/usr/sbin/apache2"]
+CMD ["-D", "FOREGROUND"]
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>What about multiple containers?</h2>
+        </section>
+
+        <section>
+          <h2>Docker Compose</h2>
+          <ul>
+            <li>Tool for defining and running multi-container Docker applications</li>
+            <li>Single command to create and start all the services</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Defined in <code>docker-compose.yml</code></h2>
+          <pre><code class="hljs" data-trim contenteditable>
+version: '3'
+services:
+  php:
+    image: wodby/php-apache
+    # This makes the container run on the same network stack as your
+    # workstation. Meaning that you can interact on "localhost".
+    network_mode: host
+  db:
+    image: mariadb
+    network_mode: host
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=local
+      ...
+  mail:
+    image: mailhog/mailhog
+    network_mode: host
+
+  # Supports any required service:
+  varnish|memcache|phantomjs|chromedriver|solr
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Control all the containers!</h2>
+          <ul>
+            <li><code>docker-compose up</code></li>
+            <li><code>docker-compose stop|down</code></li>
+            <li><code>docker-compose exec php bash</code></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Other ready made docker-compose options:</h2>
+          <ul>
+            <li><a href="https://github.com/wodby/docker4drupal">docker4drupal</a> Drupal 6/7/8, many containers, best practice</li>
+            <li><a href="https://github.com/drud/ddev">DDEV</a> Drupal 6/7/8, Wordpress, Backdrop, TYPO3</li>
+            <li><a href="https://docksal.io/">Docsal</a> Drupal 7/8, Wordpress, Magento</li>
+            <li><a href="https://github.com/lando/lando">Lando</a> Great Pantheon integration, Drupal 6/7/8, Laravel, Wordpress, Custom</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Or, roll your own!</h2>
+        </section>
+
+        <section>
+          <h2>Live demo time!</h2>
+        </section>
+
+        <section>
+          <h2>Questions?</h2>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="reveal/lib/js/head.min.js"></script>
+    <script src="reveal/js/reveal.js"></script>
+
+    <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'reveal/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: 'reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+
+    </script>
+
+    <div class="share-reveal" style="position: absolute; bottom: 16px; left: 16px; z-index: 20;">
+      <svg style="width:100%;" xmlns="http://www.w3.org/2000/svg" width="395" height="39" viewBox="0 0 395 39" aria-labelledby="title desc" role="img">
+        <title id="title">PreviousNext</title>
+        <desc id="desc">Company logo linked to front page</desc>
+        <path fill="#FFFFFF" d="M0 1.6c0-.5.4-1 1-1h12.6c6.6 0 12 5.4 12 11.9 0 6.6-5.4 12.1-12 12.1H7v12.6c0 .5-.5 1-1 1H1c-.6 0-1-.5-1-1V1.6zm13.2 16.3c3 0 5.5-2.4 5.5-5.6 0-2.9-2.5-5.2-5.5-5.2H7v10.8h6.2zM30.7 1.6c0-.5.4-1 1-1H47c6.4 0 11.7 5.1 11.7 11.5 0 4.9-3.3 9-7.9 10.8l7.3 13.6c.4.7 0 1.6-.9 1.6h-5.6c-.5 0-.8-.3-.9-.5l-7.1-14.2h-6v13.7c0 .5-.5 1-1 1h-4.9c-.6 0-1-.5-1-1V1.6zm15.7 16c2.8 0 5.3-2.5 5.3-5.5 0-2.8-2.5-5.2-5.3-5.2h-8.7v10.7h8.7zm18.9-16c0-.5.4-1 1-1h21.8c.6 0 1 .5 1 1V6c0 .5-.4 1-1 1H72.3v8.8h13.2c.5 0 1 .5 1 1v4.5c0 .6-.5 1-1 1H72.3v9.4h15.9c.6 0 1 .5 1 1v4.4c0 .5-.4 1-1 1H66.3c-.6 0-1-.5-1-1V1.6zm27.5.3c-.3-.7.1-1.4.9-1.4h5.5c.5 0 .8.3.9.6l10.3 23.1h.4L121 1.1c.1-.3.4-.6.9-.6h5.5c.8 0 1.2.7.9 1.4L111.7 38c-.2.3-.4.6-.9.6h-.5c-.5 0-.8-.3-.9-.6L92.8 1.9zm39.3-.3c0-.5.5-1 1-1h5c.5 0 1 .5 1 1v35.5c0 .5-.5 1-1 1h-5c-.5 0-1-.5-1-1V1.6zM164.4 0c10.7 0 19.3 8.6 19.3 19.4 0 10.7-8.6 19.2-19.3 19.2-10.7 0-19.2-8.5-19.2-19.2 0-10.8 8.5-19.4 19.2-19.4m0 31.6c6.8 0 12.3-5.5 12.3-12.3 0-6.8-5.6-12.4-12.3-12.4-6.7 0-12.3 5.6-12.3 12.4 0 6.8 5.6 12.3 12.3 12.3m24.7-30c0-.5.5-1 1-1h5.1c.6 0 1 .5 1 1v21.9c0 4.6 3.1 8.1 7.8 8.1 4.7 0 7.8-3.6 7.8-8.1v-22c0-.5.4-1 1-1h5.1c.5 0 1 .5 1 1v22.3c0 8.1-6.5 14.7-15 14.7-8.4 0-14.9-6.6-14.9-14.7V1.6h.1zM225 32.8l1.9-3.3c.4-.8 1.3-.8 1.8-.4.3.2 4.6 3.3 8.1 3.3 2.8 0 4.9-1.8 4.9-4.1 0-2.7-2.3-4.6-6.8-6.4-5-2-10.1-5.3-10.1-11.6 0-4.8 3.5-10.3 12.1-10.3 5.5 0 9.7 2.8 10.7 3.6.5.3.7 1.2.3 1.8l-2 3.1c-.4.6-1.2 1.1-1.9.6-.4-.3-4.5-2.9-7.5-2.9-3.1 0-4.7 2-4.7 3.8 0 2.5 2 4.2 6.3 6 5.2 2.1 11.2 5.2 11.2 12.1 0 5.5-4.8 10.6-12.3 10.6-6.8 0-10.7-3.2-11.8-4.2-.5-.6-.7-.8-.2-1.7M256.9 1c0-.5.5-1 1-1h1.3l22.3 23.7h.1V1.6c0-.5.4-1 1-1h4.9c.5 0 1 .5 1 1v36.1c0 .5-.5 1-1 1h-1.3L263.9 14h-.1v23.1c0 .5-.4 1-1 1h-4.9c-.5 0-1-.5-1-1V1zm40.4.6c0-.5.4-1 1-1h21.8c.6 0 1 .5 1 1V6c0 .5-.4 1-1 1h-15.9v8.8h13.2c.5 0 1 .5 1 1v4.5c0 .6-.5 1-1 1h-13.2v9.4h15.9c.6 0 1 .5 1 1v4.4c0 .5-.4 1-1 1h-21.8c-.6 0-1-.5-1-1V1.6zM369.4 7h-8.2c-.6 0-1-.5-1-1V1.6c0-.5.4-1 1-1h23.4c.6 0 1 .5 1 1V6c0 .5-.4 1-1 1h-8.2v30.1c0 .5-.5 1-1 1h-5c-.5 0-1-.5-1-1V7z"/>
+        <path fill="#3DB7E2" d="M356.7 2c.4-.7 0-1.5-.9-1.5h-6.2c-.4 0-.8.3-.9.5l-6.9 11.3 4.2 6.4L356.7 2zm.3 34.6l-11-17.7-4.2 6.4 7.7 12.3c.1.2.5.5.9.5h5.8c.8 0 1.3-.8.8-1.5"/>
+        <path fill="#FFFFFF" d="M346 18.9l-.1-.1-4.2-6.4L334.6.8c-.2-.2-.4-.5-.9-.5h-6.4c-.9 0-1.4.8-.9 1.5l11.1 17.1-11.5 18c-.4.7 0 1.5 1 1.5h6c.4 0 .8-.3.9-.5l7.8-12.5.1-.1 4.2-6.4zm45.4-12c-1.8 0-3.2-1.5-3.2-3.2 0-1.8 1.4-3.2 3.2-3.2 1.8 0 3.2 1.5 3.2 3.2.1 1.7-1.4 3.2-3.2 3.2m.1-6.2c-1.7 0-2.9 1.3-2.9 3s1.3 2.9 2.9 2.9c1.7 0 2.9-1.3 2.9-3S393.1.7 391.5.7m.6 3.2l1 1.3h-.6l-1-1.2h-.8v1.2h-.5V1.9h1.5c.7 0 1.2.4 1.2 1s-.3.9-.8 1m-.5-1.5h-1v1.2h.9c.5 0 .8-.2.8-.6.1-.4-.2-.6-.7-.6"/>
+      </svg>
+    </div>
+
+  </body>
+</html>
